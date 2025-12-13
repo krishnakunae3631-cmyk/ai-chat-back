@@ -7,52 +7,38 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT;
-const MODEL = "mistralai/Mistral-7B-Instruct-v0.2";
 
 app.get("/", (req, res) => {
-  res.send("Backend OK");
+  res.send("Groq backend running");
 });
 
 app.post("/chat", async (req, res) => {
   try {
-    const hfRes = await fetch(
-      `https://router.huggingface.co/hf-inference/models/${MODEL}`,
+    const response = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.HF_API_KEY}`,
+          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          inputs: req.body.message
+          model: "llama3-8b-8192",
+          messages: [
+            { role: "user", content: req.body.message }
+          ]
         })
       }
     );
 
-    const rawText = await hfRes.text();
-
-    // ALWAYS respond, never crash
-    let reply = "Model is loading. Try again in 10 seconds.";
-
-    try {
-      const json = JSON.parse(rawText);
-      if (Array.isArray(json) && json[0]?.generated_text) {
-        reply = json[0].generated_text;
-      } else if (json?.error) {
-        reply = json.error;
-      }
-    } catch {
-      // HF sometimes sends plain text
-      reply = rawText.slice(0, 500);
-    }
-
-    res.json({ reply });
+    const data = await response.json();
+    res.json({ reply: data.choices[0].message.content });
 
   } catch (err) {
-    res.json({ reply: "Backend reachable, model warming up. Retry." });
+    res.json({ reply: "Server error" });
   }
 });
 
 app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+  console.log("🚀 Groq backend running on port", PORT);
 });
