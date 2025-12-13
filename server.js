@@ -37,7 +37,9 @@ app.post("/chat", async (req, res) => {
       }
     );
 
-    const data = await response.json();
+    const text = await response.text();
+const data = JSON.parse(text);
+
 
     let reply = "Model is loading, try again in 10 seconds";
 
