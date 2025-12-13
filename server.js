@@ -7,54 +7,52 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT;
-
-// Free HF model
 const MODEL = "mistralai/Mistral-7B-Instruct-v0.2";
 
 app.get("/", (req, res) => {
-  res.send("HF backend running");
+  res.send("Backend OK");
 });
 
 app.post("/chat", async (req, res) => {
   try {
-    const response = await fetch(
-      // ✅ NEW HF ROUTER (IMPORTANT)
+    const hfRes = await fetch(
       `https://router.huggingface.co/hf-inference/models/${MODEL}`,
       {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${process.env.HF_API_KEY}`,
+          Authorization: `Bearer ${process.env.HF_API_KEY}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          inputs: req.body.message,
-          parameters: {
-            max_new_tokens: 150,
-            temperature: 0.7,
-            return_full_text: false
-          }
+          inputs: req.body.message
         })
       }
     );
 
-    const text = await response.text();
-const data = JSON.parse(text);
+    const rawText = await hfRes.text();
 
+    // ALWAYS respond, never crash
+    let reply = "Model is loading. Try again in 10 seconds.";
 
-    let reply = "Model is loading, try again in 10 seconds";
-
-    if (Array.isArray(data) && data[0]?.generated_text) {
-      reply = data[0].generated_text;
-    } else if (data?.error) {
-      reply = data.error;
+    try {
+      const json = JSON.parse(rawText);
+      if (Array.isArray(json) && json[0]?.generated_text) {
+        reply = json[0].generated_text;
+      } else if (json?.error) {
+        reply = json.error;
+      }
+    } catch {
+      // HF sometimes sends plain text
+      reply = rawText.slice(0, 500);
     }
 
     res.json({ reply });
+
   } catch (err) {
-    res.json({ reply: "Server error" });
+    res.json({ reply: "Backend reachable, model warming up. Retry." });
   }
 });
 
 app.listen(PORT, () => {
-  console.log("🚀 HF backend running on port", PORT);
+  console.log("Server running on port", PORT);
 });
