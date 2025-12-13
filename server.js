@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT; // 🔥 IMPORTANT
 
 app.get("/", (req, res) => {
   res.send("✅ Gemini Backend Running");
@@ -31,7 +31,6 @@ app.post("/chat", async (req, res) => {
     );
 
     const data = await response.json();
-    console.log("Gemini raw:", JSON.stringify(data, null, 2));
 
     if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
       res.json({ reply: data.candidates[0].content.parts[0].text });
@@ -47,10 +46,5 @@ app.post("/chat", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log("🚀 Backend running on port", PORT);
+  console.log("🚀 Backend running on Render port", PORT);
 });
-
-app.listen(PORT, () => {
-  console.log(`🚀 Backend running on port ${PORT}`);
-});
-
