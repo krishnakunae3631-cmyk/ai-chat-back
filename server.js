@@ -1,12 +1,8 @@
 import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
@@ -18,10 +14,8 @@ app.get("/", (req, res) => {
 
 app.post("/chat", async (req, res) => {
   try {
-    const userMessage = req.body.message;
-
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -29,34 +23,31 @@ app.post("/chat", async (req, res) => {
           contents: [
             {
               role: "user",
-              parts: [{ text: userMessage }]
+              parts: [{ text: req.body.message }]
             }
           ]
         })
       }
     );
 
-    const data = await geminiRes.json();
+    const data = await response.json();
+    console.log("Gemini raw:", JSON.stringify(data, null, 2));
 
-    let reply = "❌ No response from Gemini";
-
-    if (
-      data.candidates &&
-      data.candidates.length &&
-      data.candidates[0].content &&
-      data.candidates[0].content.parts &&
-      data.candidates[0].content.parts.length
-    ) {
-      reply = data.candidates[0].content.parts[0].text;
+    if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      res.json({ reply: data.candidates[0].content.parts[0].text });
     } else if (data.error) {
-      reply = "Gemini Error: " + data.error.message;
+      res.json({ reply: "Gemini Error: " + data.error.message });
+    } else {
+      res.json({ reply: "❌ Empty response from Gemini" });
     }
 
-    res.json({ reply });
-
   } catch (err) {
-    res.status(500).json({ reply: "Server error" });
+    res.status(500).json({ reply: "Server crashed" });
   }
+});
+
+app.listen(PORT, () => {
+  console.log("🚀 Backend running on port", PORT);
 });
 
 app.listen(PORT, () => {
