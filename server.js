@@ -8,7 +8,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT;
 
-// Free, reliable HF model
+// Free HF model
 const MODEL = "mistralai/Mistral-7B-Instruct-v0.2";
 
 app.get("/", (req, res) => {
@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
 app.post("/chat", async (req, res) => {
   try {
     const response = await fetch(
-      `https://api-inference.huggingface.co/models/${MODEL}`,
+      `https://router.huggingface.co/hf-inference/models/${MODEL}`,
       {
         method: "POST",
         headers: {
@@ -38,13 +38,10 @@ app.post("/chat", async (req, res) => {
 
     const data = await response.json();
 
-    let reply = "Model is loading, please try again in 10 seconds";
+    let reply = "Model is loading, try again in 10 seconds";
 
-    if (Array.isArray(data) && data[0]) {
-      reply =
-        data[0].generated_text ||
-        data[0].output_text ||
-        reply;
+    if (Array.isArray(data) && data[0]?.generated_text) {
+      reply = data[0].generated_text;
     } else if (data.error) {
       reply = data.error;
     }
