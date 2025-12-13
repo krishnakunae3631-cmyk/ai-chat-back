@@ -22,7 +22,7 @@ app.post("/chat", async (req, res) => {
     } else if (data.error) {
       res.json({ reply: "Gemini Error: " + data.error.message });
     } else {
-      res.json({ reply: "❌ No response from Gemini" });
+      res.json({ reply: "No response from Gemini" });
     }
 
   } catch (err) {
