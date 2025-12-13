@@ -1,5 +1,5 @@
 {
-  "name": "hf-chat-backend",
+  "name": "groq-chat-backend",
   "version": "1.0.0",
   "type": "module",
   "main": "server.js",
@@ -12,4 +12,3 @@
     "node-fetch": "^3.3.2"
   }
 }
-
