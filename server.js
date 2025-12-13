@@ -18,6 +18,7 @@ app.get("/", (req, res) => {
 app.post("/chat", async (req, res) => {
   try {
     const response = await fetch(
+      // ✅ NEW HF ROUTER (IMPORTANT)
       `https://router.huggingface.co/hf-inference/models/${MODEL}`,
       {
         method: "POST",
@@ -42,12 +43,11 @@ app.post("/chat", async (req, res) => {
 
     if (Array.isArray(data) && data[0]?.generated_text) {
       reply = data[0].generated_text;
-    } else if (data.error) {
+    } else if (data?.error) {
       reply = data.error;
     }
 
     res.json({ reply });
-
   } catch (err) {
     res.json({ reply: "Server error" });
   }
