@@ -1,5 +1,5 @@
 {
-  "name": "ai-chat-back",
+  "name": "hf-chat-backend",
   "version": "1.0.0",
   "type": "module",
   "main": "server.js",
@@ -9,6 +9,6 @@
   "dependencies": {
     "express": "^4.19.2",
     "cors": "^2.8.5",
-    "@google/generative-ai": "^0.17.0"
+    "node-fetch": "^3.3.2"
   }
 }
