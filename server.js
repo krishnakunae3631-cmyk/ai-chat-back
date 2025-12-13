@@ -1,32 +1,51 @@
 import express from "express";
 import cors from "cors";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import fetch from "node-fetch";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Render gives this automatically
 const PORT = process.env.PORT;
 
-// Google AI Studio API key
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// ✅ Hugging Face free model
+const MODEL = "mistralai/Mistral-7B-Instruct-v0.2";
 
 app.get("/", (req, res) => {
-  res.send("Backend running");
+  res.send("HF backend running");
 });
 
 app.post("/chat", async (req, res) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const result = await model.generateContent(req.body.message);
-    const reply = result.response.text();
+    const response = await fetch(
+      `https://api-inference.huggingface.co/models/${MODEL}`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.HF_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          inputs: req.body.message
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    // HF response format
+    const reply =
+      Array.isArray(data) && data[0]?.generated_text
+        ? data[0].generated_text
+        : "No response from model";
+
     res.json({ reply });
+
   } catch (err) {
-    res.json({ reply: "Gemini error" });
+    res.json({ reply: "Server error" });
   }
 });
 
 app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+  console.log("🚀 HF backend running on port", PORT);
 });
