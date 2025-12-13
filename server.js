@@ -8,7 +8,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT;
 
-// ✅ Hugging Face free model
+// Free, reliable HF model
 const MODEL = "mistralai/Mistral-7B-Instruct-v0.2";
 
 app.get("/", (req, res) => {
@@ -26,18 +26,28 @@ app.post("/chat", async (req, res) => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          inputs: req.body.message
+          inputs: req.body.message,
+          parameters: {
+            max_new_tokens: 150,
+            temperature: 0.7,
+            return_full_text: false
+          }
         })
       }
     );
 
     const data = await response.json();
 
-    // HF response format
-    const reply =
-      Array.isArray(data) && data[0]?.generated_text
-        ? data[0].generated_text
-        : "No response from model";
+    let reply = "Model is loading, please try again in 10 seconds";
+
+    if (Array.isArray(data) && data[0]) {
+      reply =
+        data[0].generated_text ||
+        data[0].output_text ||
+        reply;
+    } else if (data.error) {
+      reply = data.error;
+    }
 
     res.json({ reply });
 
