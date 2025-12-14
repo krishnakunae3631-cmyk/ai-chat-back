@@ -25,12 +25,13 @@ app.post("/chat", async (req, res) => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "mistralai/mistral-7b-instruct",
+          model: "meta-llama/llama-3-8b-instruct",
+          
           messages: [
             {
               role: "system",
               content:
-                "You are a chatbot named 'FreeBot'. Always give SHORT, clear answers (1–2 lines). Always answer questions directly. If asked your name, say: My name is FreeBot."
+                "You are a chatbot named 'Ram'. Always give SHORT, clear answers (1–2 lines). Always answer questions directly. If asked your name, say: My name is Ram."
             },
             {
               role: "user",
