@@ -1,13 +1,13 @@
 {
-  "name": "groq-chat-backend",
+  "name": "openrouter-backend",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",
     "express": "^4.19.2",
-    "groq-sdk": "^0.6.0"
+    "cors": "^2.8.5",
+    "node-fetch": "^3.3.2"
   }
 }
