@@ -30,15 +30,15 @@ app.post("/chat", async (req, res) => {
             {
               role: "system",
               content:
-                "You are a friendly helpful chatbot. Always reply politely, even to short greetings like hi, hello, good morning, hey."
+                "You are a chatbot named 'FreeBot'. Always give SHORT, clear answers (1–2 lines). Always answer questions directly. If asked your name, say: My name is FreeBot."
             },
             {
               role: "user",
               content: userMessage
             }
           ],
-          temperature: 0.7,
-          max_tokens: 200
+          temperature: 0.3,
+          max_tokens: 60
         })
       }
     );
@@ -46,16 +46,16 @@ app.post("/chat", async (req, res) => {
     const data = await response.json();
 
     const reply =
-      data?.choices?.[0]?.message?.content ||
-      "Hello! How can I help you today?";
+      data?.choices?.[0]?.message?.content?.trim() ||
+      "Hello! How can I help you?";
 
     res.json({ reply });
 
-  } catch (error) {
+  } catch (err) {
     res.json({ reply: "Server error" });
   }
 });
 
 app.listen(PORT, () => {
-  console.log("🚀 Backend running on port", PORT);
+  console.log("Backend running on port", PORT);
 });
