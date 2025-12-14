@@ -29,10 +29,11 @@ app.post("/chat", async (req, res) => {
           
           messages: [
             {
-              role: "system",
-              content:
-                "You are a chatbot named 'Ram'. Always give SHORT, clear answers (1–2 lines). Always answer questions directly. If asked your name, say: My name is Ram."
-            },
+              {
+  role: "system",
+  content: "You are a highly intelligent assistant. Think step by step before answering. Give accurate, logical, and complete answers. If a question is complex, reason carefully."
+}
+   },
             {
               role: "user",
               content: userMessage
