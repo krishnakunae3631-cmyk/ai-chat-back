@@ -1,39 +1,41 @@
 import express from "express";
 import cors from "cors";
-import Groq from "groq-sdk";
+import fetch from "node-fetch";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY
-});
+const PORT = process.env.PORT;
 
 app.get("/", (req, res) => {
-  res.send("Groq backend running");
+  res.send("OpenRouter backend running");
 });
 
 app.post("/chat", async (req, res) => {
   try {
-    const userMessage = req.body.message;
-
-    const completion = await groq.chat.completions.create({
-      model: "llama3-8b-8192",
-      messages: [{ role: "user", content: userMessage }],
-      temperature: 0.7
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "mistralai/mistral-7b-instruct",
+        messages: [
+          { role: "user", content: req.body.message }
+        ]
+      })
     });
 
-    res.json({
-      reply: completion.choices[0].message.content
-    });
+    const data = await r.json();
+    res.json({ reply: data.choices[0].message.content });
 
-  } catch (err) {
-    res.json({ reply: "Groq error – check API key" });
+  } catch (e) {
+    res.json({ reply: "Server error" });
   }
 });
 
-const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log("Groq server running on port", PORT);
+  console.log("Server running on port", PORT);
 });
